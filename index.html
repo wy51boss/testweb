@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>一粒小兔豆</title>
+    <title>动态文字流</title>
     <style>
         /* 设置黑色背景 */
         body {
@@ -11,106 +11,181 @@
             margin: 0;
             padding: 0;
             height: 100vh;
-            overflow: hidden; /* 防止滚动条 */
+            overflow: hidden;
+            font-family: Arial, sans-serif;
         }
 
-        /* 随机大小和位置的白色评论框 */
-        .comment {
+        /* 文字流的动画效果 */
+        .flowing-text {
             position: absolute;
-            background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
-            color: black;
-            font-family: 'Arial', sans-serif;
-            word-wrap: break-word;
-            opacity: 0; /* 初始时设置为透明 */
-            transition: opacity 1s ease-in-out; /* 渐变效果 */
-            font-weight: bold; /* 字体加粗 */
+            font-weight: bold;
+            opacity: 0;
+            white-space: nowrap;
+            animation-timing-function: linear;
         }
 
-        /* 设定评论框的最大宽度和最大高度 */
-        .comment-content {
-            max-width: 100%; /* 让评论内容充满评论框 */
-            word-wrap: break-word;
+        /* 控制面板的样式 */
+        .control-panel {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 8px;
+            color: white;
+            z-index: 999;
+        }
+
+        .control-panel input, .control-panel button {
+            margin-top: 10px;
+            width: 200px;
+            padding: 8px;
+            font-size: 16px;
+        }
+
+        /* 按键提示 */
+        .key-info {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-size: 14px;
+            z-index: 1000;
+        }
+
+        /* 控制面板按钮 */
+        .control-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #333;
+            color: white;
+            padding: 15px;
+            font-size: 18px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
+    <div class="key-info">按 Ctrl + P 打开控制面板（桌面版）</div>
+
+    <!-- 控制面板 -->
+    <div class="control-panel" id="controlPanel">
+        <h3>添加新的文字流</h3>
+        <input type="text" id="textInput" placeholder="输入新文字流内容" />
+        <input type="number" id="durationInput" placeholder="持续时间（秒）" />
+        <button onclick="addTextFlow()">添加文字流</button>
+    </div>
+
+    <!-- 控制面板按钮（手机端） -->
+    <button class="control-button" onclick="toggleControlPanel()">控制面板</button>
+
     <script>
-        // 生成随机数的函数
-        function getRandomInt(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
-
-        // 创建一个评论框
-        function createComment(text) {
-            const commentDiv = document.createElement('div');
-            commentDiv.classList.add('comment');
-
-            // 根据屏幕尺寸设定评论框最大尺寸和字体大小
-            const maxWidth = window.innerWidth / 8; // 最大宽度：屏幕宽度的八分之一
-            const maxHeight = window.innerHeight / 8; // 最大高度：屏幕高度的八分之一
-            const width = getRandomInt(150, maxWidth); // 宽度范围
-            const height = getRandomInt(100, maxHeight); // 高度范围
-            const fontSize = Math.max(16, Math.min(24, Math.floor(width / 15))); // 根据宽度设置字体大小，确保字体足够大
-
-            commentDiv.style.width = `${width}px`;
-            commentDiv.style.height = `${height}px`;
-            commentDiv.style.fontSize = `${fontSize}px`;
-
-            // 随机设定评论框的位置
-            const top = getRandomInt(0, window.innerHeight - height); // 垂直位置
-            const left = getRandomInt(0, window.innerWidth - width); // 水平位置
-            commentDiv.style.top = `${top}px`;
-            commentDiv.style.left = `${left}px`;
-
-            // 设置评论框内容
-            const contentDiv = document.createElement('div');
-            contentDiv.classList.add('comment-content');
-            contentDiv.textContent = text;
-
-            commentDiv.appendChild(contentDiv);
-
-            // 将评论框添加到页面中
-            document.body.appendChild(commentDiv);
-
-            // 显示评论框
-            setTimeout(() => {
-                commentDiv.style.opacity = 1; // 显示时使用渐变透明度
-            }, 50); // 延迟一点点时间，确保元素加载后再显示
-
-            // 评论框消失
-            setTimeout(() => {
-                commentDiv.style.opacity = 0; // 渐变消失
-                setTimeout(() => {
-                    commentDiv.remove(); // 移除评论框
-                }, 1000); // 等待消失动画完成后再删除
-            }, 4000); // 4秒后开始消失
-        }
-
-        // 定义夸奖女生好看的评论文本
-        const comments = [
-            "你真是太美了，简直是天使下凡！",
-            "每次看到你，都会被你的美丽深深吸引。",
-            "你的笑容就像阳光一样温暖，真让人陶醉。",
-            "我从没见过这么迷人的人，真是无可挑剔！",
-            "你的一颦一笑都充满了魅力，真让人忍不住想靠近。",
-            "你的美丽不仅仅在外表，内在的气质也无与伦比。",
-            "你的眼睛像星星一样闪亮，真是太美了！",
-            "你的每一寸肌肤都散发着光辉，真是美得不可思议！"
-        ];
-
-        // 延迟逐个弹出评论框
-        let commentIndex = 0;
-        const commentInterval = setInterval(() => {
-            if (commentIndex < comments.length) {
-                createComment(comments[commentIndex]);
-                commentIndex++;
-            } else {
-                clearInterval(commentInterval); // 所有评论弹出后停止
+        // 按键触发打开/关闭控制面板（桌面版）
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'p') {
+                const controlPanel = document.getElementById('controlPanel');
+                controlPanel.style.display = controlPanel.style.display === 'block' ? 'none' : 'block';
             }
-        }, 1500); // 每隔1.5秒弹出一个评论框
+        });
+
+        // 按钮触发打开/关闭控制面板（手机端）
+        function toggleControlPanel() {
+            const controlPanel = document.getElementById('controlPanel');
+            controlPanel.style.display = controlPanel.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // 随机生成文字流的动画
+        function createTextFlow(text, duration) {
+            const directions = ['left', 'right', 'top', 'bottom'];
+            const direction = directions[Math.floor(Math.random() * directions.length)];
+
+            // 随机生成字体大小（在合理范围内）
+            const fontSize = Math.floor(Math.random() * (36 - 16 + 1)) + 16; // 字体大小范围 16px - 36px
+
+            // 随机生成颜色
+            const randomColor = getRandomColor();
+
+            // 创建文字流元素
+            const textElement = document.createElement('div');
+            textElement.classList.add('flowing-text');
+            textElement.textContent = text;
+            textElement.style.fontSize = `${fontSize}px`;
+            textElement.style.color = randomColor;
+
+            // 设置动画方向
+            if (direction === 'left') {
+                textElement.style.left = '100%';
+                textElement.style.top = `${Math.random() * window.innerHeight}px`;
+                textElement.style.animation = `flowLeft ${duration}s infinite`;
+            } else if (direction === 'right') {
+                textElement.style.left = `-${text.length * 15}px`;
+                textElement.style.top = `${Math.random() * window.innerHeight}px`;
+                textElement.style.animation = `flowRight ${duration}s infinite`;
+            } else if (direction === 'top') {
+                textElement.style.top = '100%';
+                textElement.style.left = `${Math.random() * window.innerWidth}px`;
+                textElement.style.animation = `flowTop ${duration}s infinite`;
+            } else {
+                textElement.style.top = `-${text.length * 15}px`;
+                textElement.style.left = `${Math.random() * window.innerWidth}px`;
+                textElement.style.animation = `flowBottom ${duration}s infinite`;
+            }
+
+            // 添加到页面
+            document.body.appendChild(textElement);
+        }
+
+        // 为文字流添加CSS动画
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes flowLeft {
+                0% { left: 100%; opacity: 1; }
+                100% { left: -100%; opacity: 0; }
+            }
+            @keyframes flowRight {
+                0% { left: -100%; opacity: 1; }
+                100% { left: 100%; opacity: 0; }
+            }
+            @keyframes flowTop {
+                0% { top: 100%; opacity: 1; }
+                100% { top: -100%; opacity: 0; }
+            }
+            @keyframes flowBottom {
+                0% { top: -100%; opacity: 1; }
+                100% { top: 100%; opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 生成随机颜色（RGB格式）
+        function getRandomColor() {
+            const r = Math.floor(Math.random() * 256);
+            const g = Math.floor(Math.random() * 256);
+            const b = Math.floor(Math.random() * 256);
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        // 添加新的文字流
+        function addTextFlow() {
+            const textInput = document.getElementById('textInput');
+            const durationInput = document.getElementById('durationInput');
+            const text = textInput.value.trim();
+            const duration = parseFloat(durationInput.value);
+
+            if (text && !isNaN(duration) && duration > 0) {
+                createTextFlow(text, duration);
+                textInput.value = '';
+                durationInput.value = '';
+            } else {
+                alert('请输入有效的文字内容和持续时间');
+            }
+        }
     </script>
 </body>
 </html>
